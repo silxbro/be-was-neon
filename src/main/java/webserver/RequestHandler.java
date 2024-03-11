@@ -12,9 +12,11 @@ import java.net.Socket;
 import java.nio.charset.StandardCharsets;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import utils.RequestLineParser;
 
 public class RequestHandler implements Runnable {
     private static final Logger logger = LoggerFactory.getLogger(RequestHandler.class);
+    private static final String STATIC_RESOURCES_PATH = "src/main/resources/static";
 
     private final Socket connection;
 
@@ -29,13 +31,14 @@ public class RequestHandler implements Runnable {
         try (InputStream in = connection.getInputStream(); OutputStream out = connection.getOutputStream()) {
             // 클라이언트 요청을 읽기 위해 BufferedReader 사용
             BufferedReader reader = new BufferedReader(new InputStreamReader(in, StandardCharsets.UTF_8));
-            String line;
+            String line = reader.readLine();
+            logger.debug("request header : {}", line);
+            String url = STATIC_RESOURCES_PATH + RequestLineParser.extractPath(line);
             while ((line = reader.readLine()) != null && !line.isEmpty()) {
                 logger.debug("request header : {}", line);
             }
 
             // 파일 읽기
-            String url = "src/main/resources/static/index.html";
             byte[] body;
             try (FileInputStream fileInputStream = new FileInputStream(url)) {
                 body = fileInputStream.readAllBytes();
