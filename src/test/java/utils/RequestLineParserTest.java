@@ -23,9 +23,7 @@ class RequestLineParserTest {
     void invalidRequestLine() {
         String requestLine = "GET";
 
-        IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () -> {
-            RequestLineParser.extractPath(requestLine);
-        });
+        IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () -> RequestLineParser.extractPath(requestLine));
 
         assertThat(exception).hasMessageStartingWith(INVALID_REQUEST_LINE);
     }
