@@ -1,10 +1,14 @@
 package webserver;
 
+import db.Database;
 import java.io.*;
 import java.net.Socket;
 
+import java.util.Map;
+import model.User;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import utils.ParameterParser;
 import utils.RequestLineParser;
 
 public class RequestHandler implements Runnable {
@@ -33,28 +37,51 @@ public class RequestHandler implements Runnable {
                 requestBuilder.append(line).append("\r\n");
             }
 
-            // 파일 읽기
-            String url = redirect(STATIC_RESOURCES_PATH + RequestLineParser.extractPath(requestBuilder.toString()));
-            byte[] body;
-            try (FileInputStream fileInputStream = new FileInputStream(url)) {
-                body = fileInputStream.readAllBytes();
-            }
+            String requestPath = RequestLineParser.extractPath(requestBuilder.toString());
 
-            // 응답 보내기
-            DataOutputStream dos = new DataOutputStream(out);
-            response200Header(dos, body.length);
-            responseBody(dos, body);
+            if (requestPath.contains("/user/create")) {
+                Database.addUser(parseUser(requestPath));
+            } else {
+                sendResponse(requestPath, out);
+            }
 
         } catch (IOException e) {
             logger.error(e.getMessage());
         }
     }
 
-    private String redirect(String originalUrl) {
-        if (originalUrl.endsWith(COMMON_FILE)) {
-            return originalUrl;
+    private User parseUser(String requestPath) {
+        Map<String, String> userInfo = ParameterParser.getUserInfo(validateCreateUserPath(requestPath));
+        return new User(userInfo.get("userId"), userInfo.get("password"), userInfo.get("name"), userInfo.get("email"));
+    }
+
+    private String validateCreateUserPath(String createUserPath) {
+        String[] pathAndInfo = createUserPath.split("\\?");
+        if (!pathAndInfo[0].equals("/user/create")) {
+            throw new IllegalArgumentException("INVALID PATH");
         }
-        return originalUrl + COMMON_FILE;
+        return pathAndInfo[1];
+    }
+
+    private void sendResponse(String requestPath, OutputStream out) throws IOException {
+        // 파일 읽기
+        String url = redirect(requestPath);
+        byte[] body;
+        try (FileInputStream fileInputStream = new FileInputStream(url)) {
+            body = fileInputStream.readAllBytes();
+        }
+
+        // 응답 보내기
+        DataOutputStream dos = new DataOutputStream(out);
+        response200Header(dos, body.length);
+        responseBody(dos, body);
+    }
+
+    private String redirect(String requestPath) {
+        if (requestPath.endsWith(COMMON_FILE)) {
+            return STATIC_RESOURCES_PATH + requestPath;
+        }
+        return STATIC_RESOURCES_PATH + requestPath + COMMON_FILE;
     }
 
     private void response200Header(DataOutputStream dos, int lengthOfBodyContent) {
