@@ -11,6 +11,7 @@ public class RequestHandler implements Runnable {
 
     private static final Logger logger = LoggerFactory.getLogger(RequestHandler.class);
     private static final String STATIC_RESOURCES_PATH = "src/main/resources/static";
+    private static final String COMMON_FILE = "/index.html";
 
     private final Socket connection;
 
@@ -33,7 +34,7 @@ public class RequestHandler implements Runnable {
             }
 
             // 파일 읽기
-            String url = STATIC_RESOURCES_PATH + RequestLineParser.extractPath(requestBuilder.toString());
+            String url = redirect(STATIC_RESOURCES_PATH + RequestLineParser.extractPath(requestBuilder.toString()));
             byte[] body;
             try (FileInputStream fileInputStream = new FileInputStream(url)) {
                 body = fileInputStream.readAllBytes();
@@ -47,6 +48,13 @@ public class RequestHandler implements Runnable {
         } catch (IOException e) {
             logger.error(e.getMessage());
         }
+    }
+
+    private String redirect(String originalUrl) {
+        if (originalUrl.endsWith(COMMON_FILE)) {
+            return originalUrl;
+        }
+        return originalUrl + COMMON_FILE;
     }
 
     private void response200Header(DataOutputStream dos, int lengthOfBodyContent) {
