@@ -42,9 +42,9 @@ public class RequestHandler implements Runnable {
 
             if (requestPath.contains(USER_CREATE_PATH)) {
                 Database.addUser(parseUser(requestPath));
-            } else {
-                sendResponse(requestPath, out);
             }
+
+            sendResponse(requestPath, out);
 
         } catch (IOException e) {
             logger.error(e.getMessage());
@@ -66,9 +66,8 @@ public class RequestHandler implements Runnable {
 
     private void sendResponse(String requestPath, OutputStream out) throws IOException {
         // 파일 읽기
-        String url = redirect(requestPath);
         byte[] body;
-        try (FileInputStream fileInputStream = new FileInputStream(url)) {
+        try (FileInputStream fileInputStream = new FileInputStream(redirect(requestPath))) {
             body = fileInputStream.readAllBytes();
         }
 
@@ -79,8 +78,8 @@ public class RequestHandler implements Runnable {
     }
 
     private String redirect(String requestPath) {
-        if (requestPath.endsWith(COMMON_FILE)) {
-            return STATIC_RESOURCES_PATH + requestPath;
+        if (requestPath.endsWith(COMMON_FILE) || requestPath.startsWith(USER_CREATE_PATH)) {
+            return STATIC_RESOURCES_PATH + COMMON_FILE;
         }
         return STATIC_RESOURCES_PATH + requestPath + COMMON_FILE;
     }
