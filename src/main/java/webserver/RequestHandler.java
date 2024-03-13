@@ -40,6 +40,7 @@ public class RequestHandler implements Runnable {
 
             String requestPath = RequestLineParser.extractPath(requestBuilder.toString());
 
+            // 회원가입 관련 요청일 경우, 사용자 입력 정보 파싱 후 User 객체 생성 및 저장
             if (requestPath.contains(USER_CREATE_PATH)) {
                 Database.addUser(parseUser(requestPath));
             }
