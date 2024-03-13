@@ -15,6 +15,7 @@ public class RequestHandler implements Runnable {
 
     private static final Logger logger = LoggerFactory.getLogger(RequestHandler.class);
     private static final String STATIC_RESOURCES_PATH = "src/main/resources/static";
+    private static final String USER_CREATE_PATH = "/user/create";
     private static final String COMMON_FILE = "/index.html";
 
     private final Socket connection;
@@ -39,7 +40,7 @@ public class RequestHandler implements Runnable {
 
             String requestPath = RequestLineParser.extractPath(requestBuilder.toString());
 
-            if (requestPath.contains("/user/create")) {
+            if (requestPath.contains(USER_CREATE_PATH)) {
                 Database.addUser(parseUser(requestPath));
             } else {
                 sendResponse(requestPath, out);
@@ -51,13 +52,13 @@ public class RequestHandler implements Runnable {
     }
 
     private User parseUser(String requestPath) {
-        Map<String, String> userInfo = ParameterParser.getUserInfo(validateCreateUserPath(requestPath));
+        Map<String, String> userInfo = ParameterParser.getUserParams(validateCreateUserPath(requestPath));
         return new User(userInfo.get("userId"), userInfo.get("password"), userInfo.get("name"), userInfo.get("email"));
     }
 
     private String validateCreateUserPath(String createUserPath) {
         String[] pathAndInfo = createUserPath.split("\\?");
-        if (!pathAndInfo[0].equals("/user/create")) {
+        if (pathAndInfo.length != 2 || !pathAndInfo[0].equals("/user/create")) {
             throw new IllegalArgumentException("INVALID PATH");
         }
         return pathAndInfo[1];
