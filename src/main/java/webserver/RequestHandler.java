@@ -1,23 +1,22 @@
 package webserver;
 
-import db.Database;
+import http.HttpRequest;
+import http.HttpResponse;
 import java.io.*;
 import java.net.Socket;
-
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 import model.User;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import utils.ParameterParser;
-import utils.PathHandler;
-import utils.RequestLineParser;
+import utils.PathUtils;
 
 public class RequestHandler implements Runnable {
 
     private static final Logger logger = LoggerFactory.getLogger(RequestHandler.class);
-    private static final String USER_CREATE_PATH = "/user/create";
-    private static final String STATIC_RESOURCES_PATH = "src/main/resources/static";
-    private static final String COMMON_FILE = "/index.html";
+    private static final String CRLF = "\r\n";
     private final Socket connection;
 
     public RequestHandler(Socket connectionSocket) {
@@ -29,27 +28,39 @@ public class RequestHandler implements Runnable {
             connection.getInetAddress(), connection.getPort());
 
         try (InputStream in = connection.getInputStream(); OutputStream out = connection.getOutputStream()) {
-            // 클라이언트 요청 읽기
-            BufferedReader reader = new BufferedReader(new InputStreamReader(in, "UTF-8"));
-            StringBuilder requestBuilder = new StringBuilder();
-            String line;
-            while ((line = reader.readLine()) != null && !line.isEmpty()) {
-                logger.debug("request header : {}", line);
-                requestBuilder.append(line).append("\r\n");
-            }
 
-            String requestPath = RequestLineParser.extractPath(requestBuilder.toString());
+            // 클라이언트 요청 객체 생성 및 내용 출력
+            HttpRequest request = new HttpRequest(readRequestHeaders(in));
+            request.printHeaders();
 
-            // 회원가입 관련 요청일 경우, 사용자 입력 정보 파싱 후 User 객체 생성 및 저장
-            if (requestPath.contains(USER_CREATE_PATH)) {
-                Database.addUser(parseUser(requestPath));
-            }
-
-            sendResponse(requestPath, out);
+            // 정적인 html 파일 응답
+            String responseFilePath = PathUtils.getStaticPath(request.getHeaderPath());
+            HttpResponse response = new HttpResponse(out, readResponseFile(responseFilePath));
+            response.send();
 
         } catch (IOException e) {
             logger.error(e.getMessage());
         }
+    }
+
+    private List<String> readRequestHeaders(InputStream in) throws IOException {
+        List<String> headers = new ArrayList<>();
+        // 클라이언트 요청 읽기
+        BufferedReader reader = new BufferedReader(new InputStreamReader(in, "UTF-8"));
+        String line;
+        while ((line = reader.readLine()) != null && !line.isEmpty()) {
+            headers.add(line);
+        }
+        return headers;
+    }
+
+    private byte[] readResponseFile(String filePath) throws IOException {
+        // 응답 대상 파일 읽기
+        byte[] body;
+        try (FileInputStream fileInputStream = new FileInputStream(filePath)) {
+            body = fileInputStream.readAllBytes();
+        }
+        return body;
     }
 
     private User parseUser(String requestPath) {
@@ -63,38 +74,5 @@ public class RequestHandler implements Runnable {
             throw new IllegalArgumentException("INVALID PATH");
         }
         return pathAndInfo[1];
-    }
-
-    private void sendResponse(String requestPath, OutputStream out) throws IOException {
-        // 파일 읽기
-        byte[] body;
-        try (FileInputStream fileInputStream = new FileInputStream(PathHandler.getStaticPath(requestPath))) {
-            body = fileInputStream.readAllBytes();
-        }
-
-        // 응답 보내기
-        DataOutputStream dos = new DataOutputStream(out);
-        response200Header(dos, body.length);
-        responseBody(dos, body);
-    }
-
-    private void response200Header(DataOutputStream dos, int lengthOfBodyContent) {
-        try {
-            dos.writeBytes("HTTP/1.1 200 OK \r\n");
-            dos.writeBytes("Content-Type: text/html;\r\n");
-            dos.writeBytes("Content-Length: " + lengthOfBodyContent + "\r\n");
-            dos.writeBytes("\r\n");
-        } catch (IOException e) {
-            logger.error(e.getMessage());
-        }
-    }
-
-    private void responseBody(DataOutputStream dos, byte[] body) {
-        try {
-            dos.write(body, 0, body.length);
-            dos.flush();
-        } catch (IOException e) {
-            logger.error(e.getMessage());
-        }
     }
 }

@@ -6,7 +6,7 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
 
-class PathHandlerTest {
+class PathUtilsTest {
 
     @ParameterizedTest
     @CsvSource({
@@ -17,7 +17,7 @@ class PathHandlerTest {
     })
     @DisplayName("클라이언트 요청 헤더에서 추출한 경로의 전체 경로 반환 기능 검증")
     void getStaticPathTest(String input, String expectedOutput) {
-        String relativePath = PathHandler.getStaticPath(input);
+        String relativePath = PathUtils.getStaticPath(input);
         assertThat(relativePath).isEqualTo(expectedOutput);
     }
 }

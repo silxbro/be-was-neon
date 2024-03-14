@@ -2,7 +2,7 @@ package utils;
 
 import java.io.File;
 
-public class PathHandler {
+public class PathUtils {
 
     private static final String STATIC_RESOURCES_PATH = "src/main/resources/static";
     private static final String COMMON_FILE = "/index.html";
