@@ -9,15 +9,15 @@ import model.User;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import utils.ParameterParser;
+import utils.PathHandler;
 import utils.RequestLineParser;
 
 public class RequestHandler implements Runnable {
 
     private static final Logger logger = LoggerFactory.getLogger(RequestHandler.class);
-    private static final String STATIC_RESOURCES_PATH = "src/main/resources/static";
     private static final String USER_CREATE_PATH = "/user/create";
+    private static final String STATIC_RESOURCES_PATH = "src/main/resources/static";
     private static final String COMMON_FILE = "/index.html";
-
     private final Socket connection;
 
     public RequestHandler(Socket connectionSocket) {
@@ -68,7 +68,7 @@ public class RequestHandler implements Runnable {
     private void sendResponse(String requestPath, OutputStream out) throws IOException {
         // 파일 읽기
         byte[] body;
-        try (FileInputStream fileInputStream = new FileInputStream(redirect(requestPath))) {
+        try (FileInputStream fileInputStream = new FileInputStream(PathHandler.getStaticPath(requestPath))) {
             body = fileInputStream.readAllBytes();
         }
 
@@ -76,13 +76,6 @@ public class RequestHandler implements Runnable {
         DataOutputStream dos = new DataOutputStream(out);
         response200Header(dos, body.length);
         responseBody(dos, body);
-    }
-
-    private String redirect(String requestPath) {
-        if (requestPath.endsWith(COMMON_FILE) || requestPath.startsWith(USER_CREATE_PATH)) {
-            return STATIC_RESOURCES_PATH + COMMON_FILE;
-        }
-        return STATIC_RESOURCES_PATH + requestPath + COMMON_FILE;
     }
 
     private void response200Header(DataOutputStream dos, int lengthOfBodyContent) {

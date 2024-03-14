@@ -19,7 +19,6 @@ public class ParameterParser {
                 e.printStackTrace();
             }
         }
-
         return params;
     }
 }
