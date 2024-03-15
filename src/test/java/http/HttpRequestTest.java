@@ -29,6 +29,6 @@ class HttpRequestTest {
             "Cookie: Idea-efef64bb=8e37f30a-e0d5-49bb-811d-9347a1cd1b40"
         );
         HttpRequest request = new HttpRequest(headers);
-        assertThat(request.getHeaderPath()).isEqualTo("/reset.css");
+        assertThat(request.getRequestPath()).isEqualTo("/reset.css");
     }
 }

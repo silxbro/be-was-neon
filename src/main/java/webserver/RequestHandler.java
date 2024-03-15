@@ -1,22 +1,19 @@
 package webserver;
 
+import business.BusinessMapper;
 import http.HttpRequest;
 import http.HttpResponse;
 import java.io.*;
 import java.net.Socket;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
-import model.User;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import utils.ParameterParser;
 import utils.PathUtils;
 
 public class RequestHandler implements Runnable {
 
     private static final Logger logger = LoggerFactory.getLogger(RequestHandler.class);
-    private static final String CRLF = "\r\n";
     private final Socket connection;
 
     public RequestHandler(Socket connectionSocket) {
@@ -33,10 +30,14 @@ public class RequestHandler implements Runnable {
             HttpRequest request = new HttpRequest(readRequestHeaders(in));
             request.printHeaders();
 
-            // 정적인 html 파일 응답
-            String responseFilePath = PathUtils.getStaticPath(request.getHeaderPath());
-            HttpResponse response = new HttpResponse(out, readResponseFile(responseFilePath));
-            response.send();
+            // 비즈니스 수행
+            if (BusinessMapper.isBusiness(request.getRequestPath())) {
+                BusinessMapper.getBusiness(request.getRequestPath()).accept(request.getParameterData());
+            }
+
+            // 정적 html 파일 응답
+            String responsePath = PathUtils.getStaticPath(request.getRequestPath());
+            HttpResponse.send(out, readResponseFile(responsePath));
 
         } catch (IOException e) {
             logger.error(e.getMessage());
@@ -56,23 +57,8 @@ public class RequestHandler implements Runnable {
 
     private byte[] readResponseFile(String filePath) throws IOException {
         // 응답 대상 파일 읽기
-        byte[] body;
         try (FileInputStream fileInputStream = new FileInputStream(filePath)) {
-            body = fileInputStream.readAllBytes();
+            return fileInputStream.readAllBytes();
         }
-        return body;
-    }
-
-    private User parseUser(String requestPath) {
-        Map<String, String> userInfo = ParameterParser.getUserParams(validateCreateUserPath(requestPath));
-        return new User(userInfo.get("userId"), userInfo.get("password"), userInfo.get("name"), userInfo.get("email"));
-    }
-
-    private String validateCreateUserPath(String createUserPath) {
-        String[] pathAndInfo = createUserPath.split("\\?");
-        if (pathAndInfo.length != 2 || !pathAndInfo[0].equals("/user/create")) {
-            throw new IllegalArgumentException("INVALID PATH");
-        }
-        return pathAndInfo[1];
     }
 }

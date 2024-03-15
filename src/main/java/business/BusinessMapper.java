@@ -1,32 +1,23 @@
-package method;
+package business;
 
-import business.Registration;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.function.Consumer;
 
-public class MethodMapper {
-    private static final Map<String, Consumer<String>> methodMap = initMethodMapper();
+public class BusinessMapper {
+    private static final Map<String, Consumer<String>> businessMap = init();
 
-    // 경로와 해당 경로에 매핑될 함수를 추가하는 메서드
-    public void addMapping(String path, Consumer<String> method) {
-        methodMap.put(path, method);
+    public static boolean isBusiness(String path) {
+        return businessMap.containsKey(path);
     }
 
-    public boolean hasMethod(String path) {
-        return methodMap.containsKey(path);
+    public static Consumer<String> getBusiness(String path) {
+        return businessMap.get(path);
     }
 
-    // 주어진 경로에 해당하는 함수를 실행하는 메서드
-    public void executeMethod(String path, String data) {
-        if (hasMethod(path)) {
-            methodMap.get(path).accept(data);
-        }
-    }
-
-    private static Map<String, Consumer<String>> initMethodMapper() {
-        MethodMapper methodMapper = new MethodMapper();
-        methodMapper.addMapping("/user/create", Registration::execute);
-        return methodMapper;
+    private static Map<String, Consumer<String>> init() {
+        Map<String, Consumer<String>> businessMap = new HashMap<>();
+        businessMap.put("/user/create", Registration::execute);
+        return businessMap;
     }
 }
