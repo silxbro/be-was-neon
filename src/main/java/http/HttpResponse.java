@@ -23,15 +23,15 @@ public class HttpResponse {
             String responsePath = PathUtils.getStaticPath(request.getRequestPath());
             byte[] body = readResponseFile(responsePath);
 
-            response200Header(dos, responsePath), body.length);
+            response200Header(dos, getContentType(request.getRequestedTypes(), responsePath), body.length);
             responseBody(dos, body);
         }
     }
 
-    private void response200Header(DataOutputStream dos, int lengthOfBody) {
+    private void response200Header(DataOutputStream dos, String contentType, int lengthOfBody) {
         try {
             dos.writeBytes("HTTP/1.1 200 OK\r\n");
-            dos.writeBytes("Content-Type: text/html;\r\n");
+            dos.writeBytes("Content-Type: " + contentType + "\r\n");
             dos.writeBytes("Content-Length: " + lengthOfBody + "\r\n");
             dos.writeBytes("\r\n");
         } catch (IOException e) {
@@ -53,5 +53,12 @@ public class HttpResponse {
         try (FileInputStream fileInputStream = new FileInputStream(filePath)) {
             return fileInputStream.readAllBytes();
         }
+    }
+
+    private String getContentType(List<String> requestedTypes, String responsePath) {
+        String fileExtension = PathUtils.getExtension(responsePath);
+        return requestedTypes.stream()
+            .filter(type -> type.contains(fileExtension))
+            .findAny().orElse(DEFAULT_CONTENT_TYPE);
     }
 }
