@@ -1,17 +1,22 @@
 package webserver;
 
-import java.io.*;
+import business.Business;
+import http.HttpRequest;
+import http.HttpResponse;
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.OutputStream;
 import java.net.Socket;
-
+import java.util.ArrayList;
+import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import utils.RequestLineParser;
 
 public class RequestHandler implements Runnable {
 
     private static final Logger logger = LoggerFactory.getLogger(RequestHandler.class);
-    private static final String STATIC_RESOURCES_PATH = "src/main/resources/static";
-
     private final Socket connection;
 
     public RequestHandler(Socket connectionSocket) {
@@ -23,49 +28,31 @@ public class RequestHandler implements Runnable {
             connection.getInetAddress(), connection.getPort());
 
         try (InputStream in = connection.getInputStream(); OutputStream out = connection.getOutputStream()) {
-            // 클라이언트 요청 읽기
-            BufferedReader reader = new BufferedReader(new InputStreamReader(in, "UTF-8"));
-            StringBuilder requestBuilder = new StringBuilder();
-            String line;
-            while ((line = reader.readLine()) != null && !line.isEmpty()) {
-                logger.debug("request header : {}", line);
-                requestBuilder.append(line).append("\r\n");
-            }
 
-            // 파일 읽기
-            String url = STATIC_RESOURCES_PATH + RequestLineParser.extractPath(requestBuilder.toString());
-            byte[] body;
-            try (FileInputStream fileInputStream = new FileInputStream(url)) {
-                body = fileInputStream.readAllBytes();
-            }
+            // 클라이언트 요청 및 반응 객체 생성
+            HttpRequest request = new HttpRequest(readRequestHeaders(in));
+            HttpResponse response = new HttpResponse(out);
 
-            // 응답 보내기
-            DataOutputStream dos = new DataOutputStream(out);
-            response200Header(dos, body.length);
-            responseBody(dos, body);
+            // 요청 내용(헤더) 출력
+            request.printHeaders();
+            // 비즈니스 수행
+            Business.execute(request);
+            // 요청 응답
+            response.send(request);
 
         } catch (IOException e) {
             logger.error(e.getMessage());
         }
     }
 
-    private void response200Header(DataOutputStream dos, int lengthOfBodyContent) {
-        try {
-            dos.writeBytes("HTTP/1.1 200 OK \r\n");
-            dos.writeBytes("Content-Type: text/html;\r\n");
-            dos.writeBytes("Content-Length: " + lengthOfBodyContent + "\r\n");
-            dos.writeBytes("\r\n");
-        } catch (IOException e) {
-            logger.error(e.getMessage());
+    private List<String> readRequestHeaders(InputStream in) throws IOException {
+        List<String> headers = new ArrayList<>();
+        // 클라이언트 요청 읽기
+        BufferedReader reader = new BufferedReader(new InputStreamReader(in, "UTF-8"));
+        String line;
+        while ((line = reader.readLine()) != null && !line.isEmpty()) {
+            headers.add(line);
         }
-    }
-
-    private void responseBody(DataOutputStream dos, byte[] body) {
-        try {
-            dos.write(body, 0, body.length);
-            dos.flush();
-        } catch (IOException e) {
-            logger.error(e.getMessage());
-        }
+        return headers;
     }
 }
