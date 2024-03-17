@@ -1,15 +1,18 @@
 package webserver;
 
-import business.BusinessMapper;
+import business.Business;
 import http.HttpRequest;
 import http.HttpResponse;
-import java.io.*;
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.OutputStream;
 import java.net.Socket;
 import java.util.ArrayList;
 import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import utils.PathUtils;
 
 public class RequestHandler implements Runnable {
 
@@ -26,18 +29,16 @@ public class RequestHandler implements Runnable {
 
         try (InputStream in = connection.getInputStream(); OutputStream out = connection.getOutputStream()) {
 
-            // 클라이언트 요청 객체 생성 및 내용 출력
+            // 클라이언트 요청 및 반응 객체 생성
             HttpRequest request = new HttpRequest(readRequestHeaders(in));
+            HttpResponse response = new HttpResponse(out);
+
+            // 요청 내용(헤더) 출력
             request.printHeaders();
-
             // 비즈니스 수행
-            if (BusinessMapper.isBusiness(request.getRequestPath())) {
-                BusinessMapper.getBusiness(request.getRequestPath()).accept(request.getParameterData());
-            }
-
-            // 정적 html 파일 응답
-            String responsePath = PathUtils.getStaticPath(request.getRequestPath());
-            HttpResponse.send(out, readResponseFile(responsePath));
+            Business.execute(request);
+            // 요청 응답
+            response.send(request);
 
         } catch (IOException e) {
             logger.error(e.getMessage());
@@ -53,12 +54,5 @@ public class RequestHandler implements Runnable {
             headers.add(line);
         }
         return headers;
-    }
-
-    private byte[] readResponseFile(String filePath) throws IOException {
-        // 응답 대상 파일 읽기
-        try (FileInputStream fileInputStream = new FileInputStream(filePath)) {
-            return fileInputStream.readAllBytes();
-        }
     }
 }

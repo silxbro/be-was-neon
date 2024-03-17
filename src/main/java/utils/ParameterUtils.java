@@ -9,7 +9,7 @@ public class ParameterUtils {
     private static final String PARAM_DELIMITER = "&";
     private static final String KEY_VALUE_DELIMITER = "=";
 
-    public static Map<String, String> parseUserParams(String userInfo) {
+    public static Map<String, String> parseParams(String userInfo) {
         Map<String, String> params = new HashMap<>();
         for (String param : userInfo.split(PARAM_DELIMITER)) {
             String[] keyValue = param.split(KEY_VALUE_DELIMITER);

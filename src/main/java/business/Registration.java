@@ -12,7 +12,7 @@ public class Registration {
     }
 
     private static User createUser(String userInfo) {
-        Map<String, String> userParams = ParameterUtils.parseUserParams(userInfo);
+        Map<String, String> userParams = ParameterUtils.parseParams(userInfo);
         return new User(userParams.get("userId"), userParams.get("password"), userParams.get("name"), userParams.get("email"));
     }
 }
