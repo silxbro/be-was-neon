@@ -1,6 +1,6 @@
 package webserver;
 
-import business.Business;
+import business.BusinessHandler;
 import http.HttpRequest;
 import http.HttpResponse;
 import java.io.BufferedReader;
@@ -36,7 +36,7 @@ public class RequestHandler implements Runnable {
             // 요청 내용(헤더) 출력
             request.printHeaders();
             // 비즈니스 수행
-            Business.execute(request);
+            BusinessHandler.execute(request);
             // 요청 응답
             response.send(request);
 

@@ -5,7 +5,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.function.Consumer;
 
-public class Business {
+public class BusinessHandler {
     private static final Map<String, Consumer<String>> businessMap = new HashMap<>();
 
     static {

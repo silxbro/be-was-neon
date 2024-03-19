@@ -8,7 +8,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
-class BusinessTest {
+class BusinessHandlerTest {
 
     HttpRequest resetRequest;
     HttpRequest userCreateRequest;
@@ -59,7 +59,7 @@ class BusinessTest {
     @Test
     @DisplayName("해당 요청의 비즈니스 로직 수행요구 여부 반환 기능 검증")
     void isBusinessTest() {
-        assertThat(Business.isBusiness(resetRequest)).isEqualTo(false);
-        assertThat(Business.isBusiness(userCreateRequest)).isEqualTo(true);
+        assertThat(BusinessHandler.isBusiness(resetRequest)).isEqualTo(false);
+        assertThat(BusinessHandler.isBusiness(userCreateRequest)).isEqualTo(true);
     }
 }
