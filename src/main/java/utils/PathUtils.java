@@ -8,15 +8,15 @@ public class PathUtils {
     private static final String COMMON_FILE = "/index.html";
     private static final String EXTENSION_DELIMITER = ".";
 
-    public static String getStaticPath(String path) {
-        File file = new File(STATIC_RESOURCES_PATH + path);
+    public static String getStaticResourcesPath(String absolutePath) {
+        File file = new File(STATIC_RESOURCES_PATH + absolutePath);
         if (file.isDirectory()) {
             return file.getPath() + COMMON_FILE;
         }
         return file.getPath();
     }
 
-    public static String getExtension(String path) {
-        return path.substring(path.lastIndexOf(EXTENSION_DELIMITER)+1);
+    public static String getExtension(String filePath) {
+        return filePath.substring(filePath.lastIndexOf(EXTENSION_DELIMITER)+1);
     }
 }

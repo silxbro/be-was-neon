@@ -14,11 +14,11 @@ public class Business {
 
     public static void execute(HttpRequest request) {
         if (isBusiness(request)) {
-            businessMap.get(request.getRequestPath()).accept(request.getParameterData());
+            businessMap.get(request.getAbsolutePath()).accept(request.getQuery());
         }
     }
 
     public static boolean isBusiness(HttpRequest request) {
-        return businessMap.containsKey(request.getRequestPath());
+        return businessMap.containsKey(request.getAbsolutePath());
     }
 }

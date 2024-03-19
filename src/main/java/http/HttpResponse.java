@@ -20,10 +20,10 @@ public class HttpResponse {
 
     public void send(HttpRequest request) throws IOException {
         try (DataOutputStream dos = new DataOutputStream(out)) {
-            String responsePath = PathUtils.getStaticPath(request.getRequestPath());
-            byte[] body = readResponseFile(responsePath);
+            String resourcePath = PathUtils.getStaticResourcesPath(request.getAbsolutePath());
+            byte[] body = readResponseFile(resourcePath);
 
-            response200Header(dos, getContentType(request.getRequestedTypes(), responsePath), body.length);
+            response200Header(dos, getContentType(request.getAcceptTypes(), resourcePath), body.length);
             responseBody(dos, body);
         }
     }
@@ -48,17 +48,17 @@ public class HttpResponse {
         }
     }
 
-    private byte[] readResponseFile(String filePath) throws IOException {
+    private byte[] readResponseFile(String targetPath) throws IOException {
         // 응답 대상 파일 읽기
-        try (FileInputStream fileInputStream = new FileInputStream(filePath)) {
+        try (FileInputStream fileInputStream = new FileInputStream(targetPath)) {
             return fileInputStream.readAllBytes();
         }
     }
 
-    private String getContentType(List<String> requestedTypes, String responsePath) {
-        String fileExtension = PathUtils.getExtension(responsePath);
-        return requestedTypes.stream()
-            .filter(type -> type.contains(fileExtension))
+    private String getContentType(List<String> acceptTypes, String targetPath) {
+        String extension = PathUtils.getExtension(targetPath);
+        return acceptTypes.stream()
+            .filter(type -> type.contains(extension))
             .findAny().orElse(DEFAULT_CONTENT_TYPE);
     }
 }

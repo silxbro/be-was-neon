@@ -8,10 +8,10 @@ import org.slf4j.LoggerFactory;
 public class HttpRequest {
 
     private static final Logger logger = LoggerFactory.getLogger(HttpRequest.class);
-    private static final String METHOD_DELIMITER = " ";
-    private static final String PATH_DELIMITER = "\\?";
+    private static final String SPACE = " ";
+    private static final String QUESTION_MARK = "\\?";
     private static final String HEADER_PRINT_FORMAT = "request header : {}";
-    private static final String EMPTY_DATA = "";
+    private static final String ACCEPT_HEADER_NAME = "Accept:";
     private final List<String> headers;
 
     public HttpRequest(List<String> headers) {
@@ -19,22 +19,22 @@ public class HttpRequest {
     }
 
     public String getMethod() {
-        return getFirstHeader().split(METHOD_DELIMITER)[0];
+        return getRequestLine().split(SPACE)[0];
     }
 
-    public String getRequestPath() {
-        return getPathTokens()[0];
+    public String getAbsolutePath() {
+        return getTargetTokens()[0];
     }
 
-    public String getParameterData() {
-        if (hasParameterData()) {
-            return getPathTokens()[1];
+    public String getQuery() {
+        if (!hasQuery()) {
+            throw new IllegalArgumentException();
         }
-        return EMPTY_DATA;
+        return getTargetTokens()[1];
     }
 
-    public List<String> getRequestedTypes() {
-        return Arrays.stream(getAcceptHeader().replace("Accept:", "").split(",")).map(String::trim)
+    public List<String> getAcceptTypes() {
+        return Arrays.stream(getAcceptHeaderValue().split(",")).map(String::trim)
             .toList();
     }
 
@@ -44,21 +44,22 @@ public class HttpRequest {
         }
     }
 
-    private String getFirstHeader() {
+    private String getRequestLine() {
         return headers.get(0);
     }
 
-    private String[] getPathTokens() {
-        String headerPath = getFirstHeader().split(METHOD_DELIMITER)[1];
-        return headerPath.split(PATH_DELIMITER);
+    private String[] getTargetTokens() {
+        String requestTarget = getRequestLine().split(SPACE)[1];
+        return requestTarget.split(QUESTION_MARK);
     }
 
-    private boolean hasParameterData() {
-        return getPathTokens().length > 1;
+    private boolean hasQuery() {
+        return getTargetTokens().length > 1;
     }
 
-    private String getAcceptHeader() {
-        return headers.stream().filter(header -> header.startsWith("Accept:")).findFirst()
-            .orElseThrow();
+    private String getAcceptHeaderValue() {
+        return headers.stream().filter(header -> header.startsWith(ACCEPT_HEADER_NAME))
+            .findFirst().orElseThrow()
+            .replace(ACCEPT_HEADER_NAME,"");
     }
 }
