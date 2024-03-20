@@ -8,7 +8,7 @@ public class PathUtils {
     private static final String COMMON_FILE = "/index.html";
     private static final String EXTENSION_DELIMITER = ".";
 
-    public static String getStaticResourcesPath(String absolutePath) {
+    public static String getStaticResourcePath(String absolutePath) {
         File file = new File(STATIC_RESOURCES_PATH + absolutePath);
         if (file.isDirectory()) {
             return file.getPath() + COMMON_FILE;
