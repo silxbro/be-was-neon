@@ -1,4 +1,4 @@
-package http;
+package webserver.http;
 
 import java.io.DataOutputStream;
 import java.io.FileInputStream;
@@ -20,7 +20,7 @@ public class HttpResponse {
 
     public void send(HttpRequest request) throws IOException {
         try (DataOutputStream dos = new DataOutputStream(out)) {
-            String resourcePath = PathUtils.getStaticResourcesPath(request.getAbsolutePath());
+            String resourcePath = PathUtils.getStaticResourcePath(request.getAbsolutePath());
             byte[] body = readResponseFile(resourcePath);
 
             response200Header(dos, getContentType(request.getAcceptTypes(), resourcePath), body.length);

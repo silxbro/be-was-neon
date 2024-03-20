@@ -1,18 +1,13 @@
 package webserver;
 
-import business.Business;
-import http.HttpRequest;
-import http.HttpResponse;
-import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.net.Socket;
-import java.util.ArrayList;
-import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import webserver.http.HttpRequest;
+import webserver.http.HttpResponse;
 
 public class RequestHandler implements Runnable {
 
@@ -30,29 +25,18 @@ public class RequestHandler implements Runnable {
         try (InputStream in = connection.getInputStream(); OutputStream out = connection.getOutputStream()) {
 
             // 클라이언트 요청 및 반응 객체 생성
-            HttpRequest request = new HttpRequest(readRequestHeaders(in));
+            HttpRequest request = new RequestReader().getRequest(in);
             HttpResponse response = new HttpResponse(out);
 
-            // 요청 내용(헤더) 출력
+            // 헤더 출력
             request.printHeaders();
-            // 비즈니스 수행
-            Business.execute(request);
-            // 요청 응답
-            response.send(request);
+
+            // 요청 처리
+            Router router = new Router();
+            router.route(request, response);
 
         } catch (IOException e) {
             logger.error(e.getMessage());
         }
-    }
-
-    private List<String> readRequestHeaders(InputStream in) throws IOException {
-        List<String> headers = new ArrayList<>();
-        // 클라이언트 요청 읽기
-        BufferedReader reader = new BufferedReader(new InputStreamReader(in, "UTF-8"));
-        String line;
-        while ((line = reader.readLine()) != null && !line.isEmpty()) {
-            headers.add(line);
-        }
-        return headers;
     }
 }

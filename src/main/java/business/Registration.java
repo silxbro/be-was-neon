@@ -8,7 +8,8 @@ import utils.ParameterUtils;
 public class Registration {
 
     public static void execute(String userInfo) {
-        Database.addUser(createUser(userInfo));
+        User user = createUser(userInfo);
+        Database.addUser(user);
     }
 
     private static User createUser(String userInfo) {
