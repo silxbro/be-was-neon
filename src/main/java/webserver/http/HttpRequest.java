@@ -4,6 +4,7 @@ import java.util.Arrays;
 import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import webserver.method.Method;
 
 public class HttpRequest {
 
@@ -22,8 +23,12 @@ public class HttpRequest {
         this.body = body;
     }
 
-    public String getMethod() {
-        return getRequestLine().split(SPACE)[0];
+    public Method getMethod() {
+        return Method.valueOf(getRequestLine().split(SPACE)[0]);
+    }
+
+    public boolean shouldRedirect() {
+        return getMethod().needExecution(this);
     }
 
     public String getAbsolutePath() {

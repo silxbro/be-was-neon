@@ -32,8 +32,8 @@ public class RequestHandler implements Runnable {
             request.printHeaders();
 
             // 요청 처리
-            Router router = new Router();
-            router.route(request, response);
+            request.getMethod().execute(request);
+            response.send(request);
 
         } catch (IOException e) {
             logger.error(e.getMessage());
