@@ -15,9 +15,9 @@ class PathUtilsTest {
         "/img/signiture.svg, src/main/resources/static/img/signiture.svg",
         "/main.css, src/main/resources/static/main.css",
     })
-    @DisplayName("클라이언트 요청 헤더에서 추출한 경로의 전체 경로 반환 기능 검증")
+    @DisplayName("HTTP 요청 메시지의 절대 경로를 정적 리소스 파일의 상대 경로로 정확히 바꾸어 반환하는지 확인")
     void getStaticPathTest(String input, String expectedOutput) {
-        String relativePath = PathUtils.getStaticPath(input);
+        String relativePath = PathUtils.getStaticResourcePath(input);
         assertThat(relativePath).isEqualTo(expectedOutput);
     }
 
@@ -30,7 +30,7 @@ class PathUtilsTest {
         "src/main/resources/static/favicon.ico, ico",
         "src/main/resources/static/main.css, css"
     })
-    @DisplayName("파일 경로의 전체 경로 반환 기능 검증")
+    @DisplayName("파일 경로의 확장자를 정확히 반환하는지 확인")
     void getExtensionTest(String input, String expectedOutput) {
         String extension = PathUtils.getExtension(input);
         assertThat(extension).isEqualTo(expectedOutput);

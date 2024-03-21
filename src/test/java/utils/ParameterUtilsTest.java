@@ -16,10 +16,10 @@ class ParameterUtilsTest {
         "name, 박재성",
         "email, javajigi@slipp.net"
     })
-    @DisplayName("사용자 정보를 담은 문자열 파싱 후 parameter 추출 기능 검증")
+    @DisplayName("사용자 쿼리 파라미터 문자열이 필드명-필드값으로 정확히 파싱되었는지 확인")
     void parseUserParamsTest(String input, String expectedOutput) {
-        String userString = "userId=javajigi&password=password&name=%EB%B0%95%EC%9E%AC%EC%84%B1&email=javajigi%40slipp.net";
-        Map<String, String> userParams = ParameterUtils.parseParams(userString);
+        String userInfo = "userId=javajigi&password=password&name=%EB%B0%95%EC%9E%AC%EC%84%B1&email=javajigi%40slipp.net";
+        Map<String, String> userParams = ParameterUtils.parseParams(userInfo);
 
         assertThat(userParams.get(input)).isEqualTo(expectedOutput);
     }
