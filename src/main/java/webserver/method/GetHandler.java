@@ -20,17 +20,16 @@ public class GetHandler implements MethodHandler {
     }
 
     @Override
-    public void process(HttpRequest request) {
-        validateRequest(request);
-        if (isBusiness(request)) {
-            String absolutePath = request.getAbsolutePath();
-            String query = request.getQuery();
-            businessMap.get(absolutePath).accept(query);
-        }
+    public boolean isValid(HttpRequest request) {
+        return businessMap.containsKey(request.getAbsolutePath());
     }
 
-    private boolean isBusiness(HttpRequest request) {
-        return businessMap.containsKey(request.getAbsolutePath());
+    @Override
+    public void execute(HttpRequest request) {
+        validateRequest(request);
+        String absolutePath = request.getAbsolutePath();
+        String query = request.getQuery();
+        businessMap.get(absolutePath).accept(query);
     }
 
     private void validateRequest(HttpRequest request) {

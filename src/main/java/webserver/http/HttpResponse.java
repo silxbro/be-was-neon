@@ -20,12 +20,24 @@ public class HttpResponse {
 
     public void send(HttpRequest request) throws IOException {
         try (DataOutputStream dos = new DataOutputStream(out)) {
-            String resourcePath = PathUtils.getStaticResourcePath(request.getAbsolutePath());
-            byte[] body = readResponseFile(resourcePath);
-
-            response200Header(dos, getContentType(request.getAcceptTypes(), resourcePath), body.length);
-            responseBody(dos, body);
+            if (request.shouldRedirect()) {
+                responseRedirect(dos, PathUtils.getStaticDefaultPath());
+                return;
+            }
+            responseSuccessful(dos, request);
         }
+    }
+
+    private void responseSuccessful(DataOutputStream dos, HttpRequest request) throws IOException {
+        String resourcePath = PathUtils.getStaticResourcePath(request.getAbsolutePath());
+        byte[] body = createBody(resourcePath);
+
+        response200Header(dos, getContentType(request.getAcceptTypes(), resourcePath), body.length);
+        responseBody(dos, body);
+    }
+
+    private void responseRedirect(DataOutputStream dos, String location) throws IOException {
+        response302Header(dos, location);
     }
 
     private void response200Header(DataOutputStream dos, String contentType, int lengthOfBody) {
@@ -39,16 +51,25 @@ public class HttpResponse {
         }
     }
 
-    private void responseBody(DataOutputStream dos, byte[] body) {
+    private void response302Header(DataOutputStream dos, String location) {
         try {
-            dos.write(body, 0, body.length);
-            dos.flush();
+            dos.writeBytes("HTTP/1.1 302 Found\r\n");
+            dos.writeBytes("Location: " + location + "\r\n");
+            dos.writeBytes("\r\n");
         } catch (IOException e) {
             logger.error(e.getMessage());
         }
     }
 
-    private byte[] readResponseFile(String targetPath) throws IOException {
+    private void responseBody(DataOutputStream dos, byte[] body) {
+        try {
+            dos.write(body, 0, body.length);
+        } catch (IOException e) {
+            logger.error(e.getMessage());
+        }
+    }
+
+    private byte[] createBody(String targetPath) throws IOException {
         // 응답 대상 파일 읽기
         try (FileInputStream fileInputStream = new FileInputStream(targetPath)) {
             return fileInputStream.readAllBytes();

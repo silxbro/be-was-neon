@@ -6,6 +6,7 @@ import java.util.List;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import webserver.method.Method;
 
 class HttpRequestTest {
 
@@ -45,10 +46,18 @@ class HttpRequestTest {
     @Test
     @DisplayName("HTTP 요청 메시지의 메서드가 정확히 반환되는지 확인")
     void getMethodTest() {
-        assertThat(firstRequest.getMethod()).isEqualTo("GET");
-        assertThat(userCreateByGetRequest.getMethod()).isEqualTo("GET");
-        assertThat(userCreateByPutRequest.getMethod()).isEqualTo("POST");
+        assertThat(firstRequest.getMethod()).isEqualTo(Method.GET);
+        assertThat(userCreateByGetRequest.getMethod()).isEqualTo(Method.GET);
+        assertThat(userCreateByPutRequest.getMethod()).isEqualTo(Method.POST);
 
+    }
+
+    @Test
+    @DisplayName("")
+    void shouldDirectTest() {
+        assertThat(firstRequest.shouldRedirect()).isEqualTo(false);
+        assertThat(userCreateByGetRequest.shouldRedirect()).isEqualTo(false);
+        assertThat(userCreateByPutRequest.shouldRedirect()).isEqualTo(true);
     }
 
     @Test

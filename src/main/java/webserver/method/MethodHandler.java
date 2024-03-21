@@ -3,5 +3,6 @@ package webserver.method;
 import webserver.http.HttpRequest;
 
 public interface MethodHandler {
-    void process(HttpRequest request);
+    boolean isValid(HttpRequest request);
+    void execute(HttpRequest request);
 }
