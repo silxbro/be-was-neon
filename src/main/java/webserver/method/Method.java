@@ -4,6 +4,7 @@ import webserver.http.HttpRequest;
 
 public enum Method {
     GET(new GetHandler()),
+    POST(new PostHandler()),
     ;
     private final MethodHandler handler;
 

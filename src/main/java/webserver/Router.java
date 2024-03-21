@@ -12,7 +12,7 @@ public class Router {
         response.send(request);
     }
 
-    public Method getMethod(HttpRequest request) {
+    private Method getMethod(HttpRequest request) {
         return Method.valueOf(request.getMethod().toUpperCase());
     }
 }
