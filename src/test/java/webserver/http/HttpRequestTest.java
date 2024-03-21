@@ -40,7 +40,6 @@ class HttpRequestTest {
         firstRequest = new HttpRequest(firstRequestHeaders, "");
         userCreateByGetRequest = new HttpRequest(userCreateByGetRequestHeaders, "");
         userCreateByPutRequest = new HttpRequest(userCreateByPutRequestHeaders, "userId=javajigi&password=password&name=%EB%B0%95%EC%9E%AC%EC%84%B1&email=javajigi%40slipp.net");
-
     }
 
     @Test
@@ -53,7 +52,7 @@ class HttpRequestTest {
     }
 
     @Test
-    @DisplayName("")
+    @DisplayName("HTTP 요청 메시지의 redirection 처리 여부가 정확히 반환되는지 확인")
     void shouldDirectTest() {
         assertThat(firstRequest.shouldRedirect()).isEqualTo(false);
         assertThat(userCreateByGetRequest.shouldRedirect()).isEqualTo(false);
