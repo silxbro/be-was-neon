@@ -1,4 +1,4 @@
-package http;
+package webserver.http;
 
 import java.util.Arrays;
 import java.util.List;
@@ -9,13 +9,17 @@ public class HttpRequest {
 
     private static final Logger logger = LoggerFactory.getLogger(HttpRequest.class);
     private static final String SPACE = " ";
+    private static final String COMMA = ",";
     private static final String QUESTION_MARK = "\\?";
     private static final String HEADER_PRINT_FORMAT = "request header : {}";
     private static final String ACCEPT_HEADER_NAME = "Accept:";
-    private final List<String> headers;
 
-    public HttpRequest(List<String> headers) {
+    private final List<String> headers;
+    private final String body;
+
+    public HttpRequest(List<String> headers, String body) {
         this.headers = headers;
+        this.body = body;
     }
 
     public String getMethod() {
@@ -27,14 +31,18 @@ public class HttpRequest {
     }
 
     public String getQuery() {
-        if (!hasQuery()) {
-            throw new IllegalArgumentException();
+        if (hasQuery()) {
+            return getTargetTokens()[1];
         }
-        return getTargetTokens()[1];
+        return "";
+    }
+
+    public String getBody() {
+        return body;
     }
 
     public List<String> getAcceptTypes() {
-        return Arrays.stream(getAcceptHeaderValue().split(",")).map(String::trim)
+        return Arrays.stream(getAcceptHeaderValue().split(COMMA)).map(String::trim)
             .toList();
     }
 

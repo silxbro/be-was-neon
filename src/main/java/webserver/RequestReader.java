@@ -12,7 +12,7 @@ public class RequestReader {
 
     public HttpRequest getRequest(InputStream in) throws IOException {
         BufferedReader reader = new BufferedReader(new InputStreamReader(in, "UTF-8"));
-        return new HttpRequest(getHeaders(reader));
+        return new HttpRequest(getHeaders(reader), getBody(reader));
     }
 
     private List<String> getHeaders(BufferedReader reader) throws IOException {
@@ -22,5 +22,13 @@ public class RequestReader {
             headers.add(line);
         }
         return headers;
+    }
+
+    private String getBody(BufferedReader reader) throws IOException {
+        StringBuilder body = new StringBuilder();
+        while (reader.ready()) {
+            body.append((char) reader.read());
+        }
+        return body.toString();
     }
 }
