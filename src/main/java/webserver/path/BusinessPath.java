@@ -1,11 +1,13 @@
 package webserver.path;
 
 import business.BusinessExecutor;
+import business.LoginExecutor;
 import business.RegistrationExecutor;
 import java.util.Arrays;
 
 public enum BusinessPath {
     USER_CREATE("/user/create", new RegistrationExecutor()),
+    USER_LOGIN("/user/login", new LoginExecutor()),
     ;
 
     private final String absolutePath;

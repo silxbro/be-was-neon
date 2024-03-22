@@ -32,6 +32,10 @@ public class HttpResponse {
     public void sendError(HttpRequest request) throws IOException {
         try (DataOutputStream dos = new DataOutputStream(out)) {
             BusinessPath path = BusinessPath.of(request.getAbsolutePath());
+            if (path == BusinessPath.USER_LOGIN) {
+                responseRedirect(dos, PathHandler.getLoginFailedPath());
+                return;
+            }
             if (path == BusinessPath.USER_CREATE) {
                 responseRedirect(dos, PathHandler.getRegistrationFailedPath());
                 return;

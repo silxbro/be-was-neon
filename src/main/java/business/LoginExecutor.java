@@ -5,7 +5,7 @@ import java.util.Map;
 import model.User;
 import utils.ParameterUtils;
 
-public class Login implements BusinessExecutor {
+public class LoginExecutor implements BusinessExecutor {
 
     @Override
     public boolean execute(String userInfo) {

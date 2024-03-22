@@ -6,11 +6,16 @@ public class PathHandler {
 
     private static final String STATIC_RESOURCES_DIRECTORY = "src/main/resources/static";
     private static final String STATIC_DEFAULT_PATH = "/index.html";
+    private static final String LOGIN_FAILED_PATH = "/login/login_failed.html";
     private static final String REGISTRATION_FAILED_PATH = "/registration/registration_failed.html";
     private static final String EXTENSION_DELIMITER = ".";
 
     public static String getStaticDefaultPath() {
         return STATIC_DEFAULT_PATH;
+    }
+
+    public static String getLoginFailedPath() {
+        return LOGIN_FAILED_PATH;
     }
 
     public static String getRegistrationFailedPath() {

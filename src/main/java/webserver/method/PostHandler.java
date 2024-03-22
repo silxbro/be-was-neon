@@ -7,7 +7,7 @@ import webserver.path.BusinessPath;
 public class PostHandler implements MethodHandler {
 
     private static final Set<BusinessPath> validPaths = Set.of(
-        BusinessPath.USER_CREATE);
+        BusinessPath.USER_CREATE, BusinessPath.USER_LOGIN);
 
     @Override
     public boolean execute(HttpRequest request) {
