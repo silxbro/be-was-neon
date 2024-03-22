@@ -12,13 +12,7 @@ public enum Method {
         this.handler = handler;
     }
 
-    public boolean needExecution(HttpRequest request) {
-        return handler.isValid(request);
-    }
-
-    public void execute(HttpRequest request) {
-        if (needExecution(request)) {
-            handler.execute(request);
-        }
+    public boolean execute(HttpRequest request) {
+        return handler.execute(request);
     }
 }

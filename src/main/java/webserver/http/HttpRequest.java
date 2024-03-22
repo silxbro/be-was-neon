@@ -5,6 +5,7 @@ import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import webserver.method.Method;
+import webserver.path.BusinessPath;
 
 public class HttpRequest {
 
@@ -27,8 +28,8 @@ public class HttpRequest {
         return Method.valueOf(getRequestLine().split(SPACE)[0]);
     }
 
-    public boolean shouldRedirect() {
-        return getMethod().needExecution(this);
+    public boolean needBusinessExecution() {
+        return BusinessPath.contains(getAbsolutePath());
     }
 
     public String getAbsolutePath() {

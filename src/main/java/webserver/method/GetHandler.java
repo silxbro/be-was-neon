@@ -1,40 +1,21 @@
 package webserver.method;
 
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
 import java.util.Set;
-import java.util.function.Consumer;
 import webserver.http.HttpRequest;
+import webserver.path.BusinessPath;
 
 public class GetHandler implements MethodHandler {
 
-    private static final Map<String, Consumer<String>> businessMap = new HashMap<>();
-    private static final Set<String> invalidPaths = new HashSet<>();
-
-    static {
-    }
-
-    static {
-        invalidPaths.add("/user/create");
-    }
+    private static final Set<BusinessPath> validPaths = Set.of();
 
     @Override
-    public boolean isValid(HttpRequest request) {
-        return businessMap.containsKey(request.getAbsolutePath());
-    }
-
-    @Override
-    public void execute(HttpRequest request) {
-        validateRequest(request);
-        String absolutePath = request.getAbsolutePath();
+    public boolean execute(HttpRequest request) {
+        BusinessPath path = BusinessPath.of(request.getAbsolutePath());
         String query = request.getQuery();
-        businessMap.get(absolutePath).accept(query);
+        return (isValid(path) && path.getExecutor().execute(query));
     }
 
-    private void validateRequest(HttpRequest request) {
-        if (invalidPaths.contains(request.getAbsolutePath())) {
-            throw new IllegalArgumentException("INVALID_PATH");
-        }
+    private boolean isValid(BusinessPath path) {
+        return validPaths.contains(path);
     }
 }

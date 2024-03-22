@@ -23,20 +23,28 @@ public class RequestHandler implements Runnable {
             connection.getInetAddress(), connection.getPort());
 
         try (InputStream in = connection.getInputStream(); OutputStream out = connection.getOutputStream()) {
-
             // 클라이언트 요청 및 반응 객체 생성
             HttpRequest request = new RequestReader().getRequest(in);
             HttpResponse response = new HttpResponse(out);
-
             // 헤더 출력
             request.printHeaders();
-
             // 요청 처리
-            request.getMethod().execute(request);
-            response.send(request);
+            boolean success = isExecutedSuccessful(request);
+            if (success) {
+                response.send(request);
+                return;
+            }
+            response.sendError(request);
 
         } catch (IOException e) {
             logger.error(e.getMessage());
         }
+    }
+
+    private boolean isExecutedSuccessful(HttpRequest request) {
+        if (!request.needBusinessExecution()) {
+            return true;
+        }
+        return request.getMethod().execute(request);
     }
 }
