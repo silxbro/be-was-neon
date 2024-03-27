@@ -13,6 +13,7 @@ public class ResponseReader {
     private static final String CONTENT_TYPE_HEADER_FORMAT = "Content-Type: %s";
     private static final String CONTENT_LENGTH_HEADER_FORMAT = "Content-Length: %s";
     private static final String LOCATION_HEADER_FORMAT = "Location: %s";
+    private static final String SET_COOKIE_FORMAT = "Set-Cookie: %s";
 
     public HttpResponse getResponse(RequestResult result) throws IOException {
         return new HttpResponse(getHeaders(result), getBody(result));
@@ -32,7 +33,7 @@ public class ResponseReader {
             return getSuccessfulHeaders(result.getFinalPath(), result.getContentType());
         }
         if (status.isRedirection()) {
-            return getRedirectionHeaders(result.getFinalPath());
+            return getRedirectionHeaders(result.getFinalPath(), result.getCookies());
         }
         return new ArrayList<>();
     }
@@ -56,9 +57,13 @@ public class ResponseReader {
         );
     }
 
-    private List<String> getRedirectionHeaders(String finalPath) {
+    private List<String> getRedirectionHeaders(String finalPath, List<Cookie> cookies) {
         List<String> headers = new ArrayList<>();
         headers.add(String.format(LOCATION_HEADER_FORMAT, finalPath));
+        if (!cookies.isEmpty()) {
+            cookies.forEach(
+                cookie -> headers.add(String.format(SET_COOKIE_FORMAT, cookie.toString())));
+        }
         return headers;
     }
 

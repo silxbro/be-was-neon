@@ -1,11 +1,16 @@
+
 package service;
 
 import db.Database;
+import java.util.List;
 import java.util.Map;
 import model.User;
 import utils.ParameterUtils;
-import webserver.http.HttpStatus;
+import webserver.handler.CookieHandler;
 import webserver.http.RequestResult;
+import db.SessionManager;
+import webserver.http.Cookie;
+import webserver.http.HttpStatus;
 
 public class LoginService implements Service {
 
@@ -13,7 +18,9 @@ public class LoginService implements Service {
     public RequestResult execute(String userParameterData) {
         try {
             User user = findUser(userParameterData);
-            return new RequestResult(HttpStatus.FOUND, ServiceType.LOGIN.getSuccessRedirectionPath());
+            String sessionId = SessionManager.addSession(user);
+            Cookie userSessionCookie = new CookieHandler().createUserSessionCookie(sessionId);
+            return new RequestResult(HttpStatus.FOUND, ServiceType.LOGIN.getSuccessRedirectionPath(), List.of(userSessionCookie));
         } catch (Exception e) {
             return new RequestResult(HttpStatus.FOUND, ServiceType.LOGIN.getFailRedirectionPath());
         }
