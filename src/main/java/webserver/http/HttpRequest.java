@@ -1,19 +1,20 @@
 package webserver.http;
 
-import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import service.ServiceType;
+import utils.StringParser;
 
 public class HttpRequest {
 
     private static final Logger logger = LoggerFactory.getLogger(HttpRequest.class);
-    private static final String SPACE = " ";
-    private static final String COMMA = ",";
-    private static final String QUESTION_MARK = "\\?";
     private static final String HEADER_PRINT_FORMAT = "request header : {}";
+    private static final String SPACE = " ";
+    private static final String QUESTION_MARK = "\\?";
     private static final String ACCEPT_HEADER_NAME = "Accept:";
+    private static final String COOKIE_HEADER_NAME = "Cookie:";
 
     private final List<String> headers;
     private final String body;
@@ -35,19 +36,22 @@ public class HttpRequest {
         return ServiceType.contains(getAbsolutePath());
     }
 
-    public String getParameterData() {
-        if (getMethod() == MethodType.GET) {
-            return getQuery();
-        }
-        if (getMethod() == MethodType.POST) {
-            return body;
-        }
-        return "";
+    public List<String> getAcceptTypes() {
+        String acceptHeaderValue = getHeaderValue(ACCEPT_HEADER_NAME);
+        return StringParser.parseAcceptHeader(acceptHeaderValue);
     }
 
-    public List<String> getAcceptTypes() {
-        return Arrays.stream(getAcceptHeaderValue().split(COMMA)).map(String::trim)
-            .toList();
+    public Map<String, String> getCookieValues() {
+        String cookieHeaderValue = getHeaderValue(COOKIE_HEADER_NAME);
+        return StringParser.parseCookieHeader(cookieHeaderValue);
+    }
+
+    public String getQuery() {
+        return getTargetTokens()[1];
+    }
+
+    public String getBody() {
+        return body;
     }
 
     public void printHeaders() {
@@ -60,18 +64,14 @@ public class HttpRequest {
         return headers.get(0);
     }
 
-    private String getQuery() {
-        return getTargetTokens()[1];
-    }
-
     private String[] getTargetTokens() {
         String requestTarget = getRequestLine().split(SPACE)[1];
         return requestTarget.split(QUESTION_MARK);
     }
 
-    private String getAcceptHeaderValue() {
-        return headers.stream().filter(header -> header.startsWith(ACCEPT_HEADER_NAME))
+    private String getHeaderValue(String headerName) {
+        return headers.stream().filter(header -> header.startsWith(headerName))
             .findFirst().orElseThrow()
-            .replace(ACCEPT_HEADER_NAME, "");
+            .replace(headerName, "");
     }
 }

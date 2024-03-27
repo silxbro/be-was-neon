@@ -2,7 +2,6 @@ package webserver.http;
 
 public class Cookie {
 
-    private static final int DEFAULT_MAX_AGE = 86400; // 하루를 초 단위로 변환
     private final String name;
     private final String value;
     private int maxAge;
@@ -14,7 +13,6 @@ public class Cookie {
     public Cookie(String name, String value) {
         this.name = name;
         this.value = value;
-        this.maxAge = DEFAULT_MAX_AGE;
     }
 
     public void setMaxAge(int maxAge) {

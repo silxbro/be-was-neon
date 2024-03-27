@@ -11,12 +11,11 @@ public class ServiceExecutor {
     static {
         executorMap.put(ServiceType.REGISTRATION, new RegistrationService());
         executorMap.put(ServiceType.LOGIN, new LoginService());
+        executorMap.put(ServiceType.LOGOUT, new LogoutService());
     }
 
-    public RequestResult getExecutionResult(String absolutePath, String parameterData) {
-        ServiceType serviceType = ServiceType.of(absolutePath);
+    public RequestResult getExecutionResult(ServiceType serviceType, String parameterData) {
         Service serviceExecutor = executorMap.get(serviceType);
-
         return serviceExecutor.execute(parameterData);
     }
 }

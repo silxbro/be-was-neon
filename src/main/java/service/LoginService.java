@@ -5,7 +5,7 @@ import db.Database;
 import java.util.List;
 import java.util.Map;
 import model.User;
-import utils.ParameterUtils;
+import utils.StringParser;
 import webserver.handler.CookieHandler;
 import webserver.http.RequestResult;
 import db.SessionManager;
@@ -15,19 +15,19 @@ import webserver.http.HttpStatus;
 public class LoginService implements Service {
 
     @Override
-    public RequestResult execute(String userParameterData) {
+    public RequestResult execute(String userData) {
         try {
-            User user = findUser(userParameterData);
+            User user = findUser(userData);
             String sessionId = SessionManager.addSession(user);
-            Cookie userSessionCookie = new CookieHandler().createUserSessionCookie(sessionId);
-            return new RequestResult(HttpStatus.FOUND, ServiceType.LOGIN.getSuccessRedirectionPath(), List.of(userSessionCookie));
+            Cookie sessionCookie = new CookieHandler().getLoginCookie(sessionId);
+            return new RequestResult(HttpStatus.FOUND, ServiceType.LOGIN.getSuccessRedirectionPath(), List.of(sessionCookie));
         } catch (Exception e) {
             return new RequestResult(HttpStatus.FOUND, ServiceType.LOGIN.getFailRedirectionPath());
         }
     }
 
-    private User findUser(String userParameterData) throws IllegalArgumentException {
-        Map<String, String> userParams = ParameterUtils.parseParams(userParameterData);
+    private User findUser(String userData) throws IllegalArgumentException {
+        Map<String, String> userParams = StringParser.parseUserData(userData);
         User user = Database.findUserById(userParams.get("userId"));
         authenticate(user, userParams.get("password"));
         return user;

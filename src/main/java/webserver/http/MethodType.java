@@ -5,6 +5,7 @@ import service.ServiceType;
 
 public enum MethodType {
     GET(Set.of(
+        ServiceType.LOGOUT
     )),
     POST(Set.of(
         ServiceType.REGISTRATION,

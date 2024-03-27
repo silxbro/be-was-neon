@@ -6,6 +6,7 @@ import webserver.handler.PathHandler;
 public enum ServiceType {
     REGISTRATION("/user/create", PathHandler.getStaticDefaultPath(), PathHandler.getRegistrationFailedPath()),
     LOGIN("/user/login", PathHandler.getStaticDefaultPath(), PathHandler.getLoginFailedPath()),
+    LOGOUT("/user/logout", PathHandler.getStaticDefaultPath(), PathHandler.getStaticDefaultPath()),
     ;
 
     private final String absolutePath;
