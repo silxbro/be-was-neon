@@ -1,4 +1,4 @@
-package webserver.path;
+package webserver.handler;
 
 import java.io.File;
 
