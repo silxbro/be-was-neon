@@ -11,7 +11,6 @@ import webserver.http.MethodType;
 public class RequestProcessor {
 
     private static final String DEFAULT_CONTENT_TYPE = "application/octet-stream";
-    private static final String SESSION_ID = "sid";
 
     public RequestResult process(HttpRequest request) {
         if (!isMethodValid(request)) {
@@ -57,7 +56,7 @@ public class RequestProcessor {
 
     private String getDataByRequest(ServiceType serviceType, HttpRequest request) {
         if (serviceType == ServiceType.LOGOUT) {
-            return request.getCookieValues().get(SESSION_ID);
+            return request.getSessionId();
         }
         if (request.getMethod() == MethodType.GET) {
             return request.getQuery();

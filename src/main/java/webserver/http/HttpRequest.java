@@ -15,6 +15,7 @@ public class HttpRequest {
     private static final String QUESTION_MARK = "\\?";
     private static final String ACCEPT_HEADER_NAME = "Accept:";
     private static final String COOKIE_HEADER_NAME = "Cookie:";
+    private static final String SESSION_ID = "sid";
 
     private final List<String> headers;
     private final String body;
@@ -41,9 +42,8 @@ public class HttpRequest {
         return StringParser.parseAcceptHeader(acceptHeaderValue);
     }
 
-    public Map<String, String> getCookieValues() {
-        String cookieHeaderValue = getHeaderValue(COOKIE_HEADER_NAME);
-        return StringParser.parseCookieHeader(cookieHeaderValue);
+    public String getSessionId() {
+        return getCookieValues().get(SESSION_ID);
     }
 
     public String getQuery() {
@@ -67,6 +67,11 @@ public class HttpRequest {
     private String[] getTargetTokens() {
         String requestTarget = getRequestLine().split(SPACE)[1];
         return requestTarget.split(QUESTION_MARK);
+    }
+
+    private Map<String, String> getCookieValues() {
+        String cookieHeaderValue = getHeaderValue(COOKIE_HEADER_NAME);
+        return StringParser.parseCookieHeader(cookieHeaderValue);
     }
 
     private String getHeaderValue(String headerName) {
