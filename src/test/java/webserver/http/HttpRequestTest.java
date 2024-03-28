@@ -6,7 +6,6 @@ import java.util.List;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import webserver.method.Method;
 
 class HttpRequestTest {
 
@@ -45,18 +44,18 @@ class HttpRequestTest {
     @Test
     @DisplayName("HTTP 요청 메시지의 메서드가 정확히 반환되는지 확인")
     void getMethodTest() {
-        assertThat(firstRequest.getMethod()).isEqualTo(Method.GET);
-        assertThat(userCreateByGetRequest.getMethod()).isEqualTo(Method.GET);
-        assertThat(userCreateByPutRequest.getMethod()).isEqualTo(Method.POST);
+        assertThat(firstRequest.getMethod()).isEqualTo(MethodType.GET);
+        assertThat(userCreateByGetRequest.getMethod()).isEqualTo(MethodType.GET);
+        assertThat(userCreateByPutRequest.getMethod()).isEqualTo(MethodType.POST);
 
     }
 
     @Test
     @DisplayName("HTTP 요청 메시지의 business 처리 필요 여부가 정확히 반환되는지 확인")
     void needBusinessExecutionTest() {
-        assertThat(firstRequest.needBusinessExecution()).isEqualTo(false);
-        assertThat(userCreateByGetRequest.needBusinessExecution()).isEqualTo(false);
-        assertThat(userCreateByPutRequest.needBusinessExecution()).isEqualTo(true);
+        assertThat(firstRequest.needService()).isEqualTo(false);
+        assertThat(userCreateByGetRequest.needService()).isEqualTo(false);
+        assertThat(userCreateByPutRequest.needService()).isEqualTo(true);
     }
 
     @Test

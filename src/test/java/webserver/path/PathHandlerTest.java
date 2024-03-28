@@ -16,8 +16,13 @@ class PathHandlerTest {
         "/main.css, src/main/resources/static/main.css",
     })
     @DisplayName("HTTP 요청 메시지의 절대 경로를 정적 리소스 파일의 상대 경로로 정확히 바꾸어 반환하는지 확인")
+<<<<<<< HEAD:src/test/java/webserver/path/PathHandlerTest.java
     void getStaticResourcePathTest(String input, String expectedOutput) {
         String relativePath = PathHandler.getStaticResourcePath(input);
+=======
+    void getStaticPathTest(String input, String expectedOutput) {
+        String relativePath = PathUtils.getStaticResourcePath(input);
+>>>>>>> upstream/silxbro:src/test/java/utils/PathUtilsTest.java
         assertThat(relativePath).isEqualTo(expectedOutput);
     }
 
