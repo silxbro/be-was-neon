@@ -1,4 +1,4 @@
-package webserver.handler;
+package webserver.path;
 
 import java.io.File;
 
@@ -8,7 +8,7 @@ public class PathHandler {
     private static final String STATIC_DEFAULT_PATH = "/index.html";
     private static final String LOGIN_FAILED_PATH = "/login/login_failed.html";
     private static final String REGISTRATION_FAILED_PATH = "/registration/registration_failed.html";
-    private static final String EXTENSION_DELIMITER = ".";
+    private static final String FILE_EXTENSION_DELIMITER = ".";
 
     public static String getStaticDefaultPath() {
         return STATIC_DEFAULT_PATH;
@@ -30,8 +30,14 @@ public class PathHandler {
         return file.getPath();
     }
 
-    public static String getExtension(String absolutePath) {
-        String staticResourcePath = getStaticResourcePath(absolutePath);
-        return staticResourcePath.substring(staticResourcePath.lastIndexOf(EXTENSION_DELIMITER)+1);
+    public static String getFileExtension(String filePath) {
+        validateFilePath(filePath);
+        return filePath.substring(filePath.lastIndexOf(FILE_EXTENSION_DELIMITER) + 1);
+    }
+
+    private static void validateFilePath(String filePath) {
+        if (filePath.lastIndexOf(FILE_EXTENSION_DELIMITER) <= 0) {
+            throw new IllegalArgumentException();
+        }
     }
 }

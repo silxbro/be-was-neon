@@ -1,6 +1,6 @@
-package webserver.handler;
+package webserver.http.cookie;
 
-import webserver.http.Cookie;
+import webserver.http.cookie.Cookie;
 
 public class CookieHandler {
 

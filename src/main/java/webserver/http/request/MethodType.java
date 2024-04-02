@@ -1,10 +1,10 @@
-package webserver.http;
+package webserver.http.request;
 
 import java.util.Set;
-import service.ServiceType;
 
 public enum MethodType {
     GET(Set.of(
+        ServiceType.LOAD
     )),
     POST(Set.of(
         ServiceType.REGISTRATION,
