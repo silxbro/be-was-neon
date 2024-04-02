@@ -1,4 +1,4 @@
-package utils;
+package webserver.path;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -6,7 +6,7 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
 
-class PathUtilsTest {
+class PathHandlerTest {
 
     @ParameterizedTest
     @CsvSource({
@@ -16,8 +16,13 @@ class PathUtilsTest {
         "/main.css, src/main/resources/static/main.css",
     })
     @DisplayName("HTTP 요청 메시지의 절대 경로를 정적 리소스 파일의 상대 경로로 정확히 바꾸어 반환하는지 확인")
+<<<<<<< HEAD:src/test/java/webserver/path/PathHandlerTest.java
+    void getStaticResourcePathTest(String input, String expectedOutput) {
+        String relativePath = PathHandler.getStaticResourcePath(input);
+=======
     void getStaticPathTest(String input, String expectedOutput) {
         String relativePath = PathUtils.getStaticResourcePath(input);
+>>>>>>> upstream/silxbro:src/test/java/utils/PathUtilsTest.java
         assertThat(relativePath).isEqualTo(expectedOutput);
     }
 
@@ -32,7 +37,7 @@ class PathUtilsTest {
     })
     @DisplayName("파일 경로의 확장자를 정확히 반환하는지 확인")
     void getExtensionTest(String input, String expectedOutput) {
-        String extension = PathUtils.getExtension(input);
+        String extension = PathHandler.getExtension(input);
         assertThat(extension).isEqualTo(expectedOutput);
     }
 }

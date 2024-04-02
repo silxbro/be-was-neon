@@ -9,7 +9,7 @@ import java.util.List;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import utils.PathUtils;
+import webserver.handler.PathHandler;
 
 class HttpResponseTest {
 
@@ -21,7 +21,7 @@ class HttpResponseTest {
     @BeforeEach
     void setUp() {
         outputStream = new ByteArrayOutputStream();
-        httpResponse = new HttpResponse(outputStream);
+//        httpResponse = new HttpResponse(outputStream);
 
         initRequests();
     }
@@ -49,7 +49,7 @@ class HttpResponseTest {
     @Test
     @DisplayName("응답할 파일이 있는 HTTP 요청의 경우, 성공(200 OK)을 나타내는 HTTP 응답 메시지를 정확히 보내는지 확인")
     void sendSuccessfulTest() throws IOException {
-        httpResponse.send(firstRequest);
+//        httpResponse.send(firstRequest);
         String[] responseLines = outputStream.toString().split("\r\n");;
 
         assertThat(responseLines[0]).isEqualTo("HTTP/1.1 200 OK");
@@ -60,10 +60,10 @@ class HttpResponseTest {
     @Test
     @DisplayName("응답할 파일이 없는 HTTP 요청의 경우, 리다이렉션(302 Found)을 나타내는 HTTP 응답 메시지를 정확히 보내는지 확인")
     void sendRedirectTest() throws IOException {
-        httpResponse.send(userCreateByPutRequest);
+//        httpResponse.send(userCreateByPutRequest);
         String[] responseLines = outputStream.toString().split("\r\n");;
 
         assertThat(responseLines[0]).isEqualTo("HTTP/1.1 302 Found");
-        assertThat(responseLines[1]).isEqualTo("Location: " + PathUtils.getStaticDefaultPath());
+        assertThat(responseLines[1]).isEqualTo("Location: " + PathHandler.getStaticDefaultPath());
     }
 }

@@ -7,7 +7,8 @@ import java.io.IOException;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import webserver.http.HttpRequest;
-import webserver.method.Method;
+import webserver.http.MethodType;
+import webserver.http.RequestReader;
 
 class RequestReaderTest {
 
@@ -26,10 +27,10 @@ class RequestReaderTest {
         RequestReader requestReader = new RequestReader();
         HttpRequest httpRequest = requestReader.getRequest(new ByteArrayInputStream(input.getBytes()));
 
-        assertThat(httpRequest.getMethod()).isEqualTo(Method.POST);
+        assertThat(httpRequest.getMethod()).isEqualTo(MethodType.POST);
         assertThat(httpRequest.getAbsolutePath()).isEqualTo("/user/create");
         assertThat(httpRequest.getQuery()).isEqualTo("");
-        assertThat(httpRequest.shouldRedirect()).isEqualTo(true);
+        assertThat(httpRequest.needService()).isEqualTo(true);
         assertThat(httpRequest.getBody()).isEqualTo("userId=javajigi&password=password&name=%EB%B0%95%EC%9E%AC%EC%84%B1&email=javajigi%40slipp.net");
     }
 }
