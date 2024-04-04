@@ -3,7 +3,6 @@ package webserver.http.response;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
-import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -14,7 +13,7 @@ public class ResponseWriter {
 
     public void writeResponse(OutputStream out, HttpResponse response) throws IOException {
         try (DataOutputStream dos = new DataOutputStream(out)) {
-            writeHeaders(response.getHeaders(), dos);
+            writeHeaders(response, dos);
             writeBody(response.getBody(), dos);
             dos.flush();
         } catch (IOException e) {
@@ -22,8 +21,9 @@ public class ResponseWriter {
         }
     }
 
-    private void writeHeaders(List<String> headers, DataOutputStream dos) throws IOException {
-        for (String header : headers) {
+    private void writeHeaders(HttpResponse response, DataOutputStream dos) throws IOException {
+        dos.writeBytes(response.getStatusLine() + CRLF);
+        for (String header : response.getHeaders()) {
             dos.writeBytes(header + CRLF);
         }
         dos.writeBytes(CRLF);

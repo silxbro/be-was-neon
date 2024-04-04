@@ -1,23 +1,40 @@
 package webserver.executor;
 
+import db.SessionManager;
+import java.io.FileInputStream;
 import java.io.IOException;
-import webserver.path.PathHandler;
+import utils.HtmlModifier;
 import webserver.http.request.HttpRequest;
 import webserver.http.response.HttpResponse;
 
-public class LoadExecutor extends AbstractExecutor {
+public class LoadExecutor extends GetExecutor {
     @Override
     public void doGet(HttpRequest request, HttpResponse response) {
         try {
-            String filePath = PathHandler.getStaticResourcePath(request.getAbsolutePath());
-            response.setLoadFile(filePath, request.getContentType());
+            byte[] content = reflectLogin(readFileContent(request.getStaticResourcePath()), request.getSessionId());
+            String contentType = request.getContentType();
+
+            response.setLoadFile(content, contentType);
         } catch (IOException e) {
             response.setPathError();
         }
     }
 
-    @Override
-    public void doPost(HttpRequest request, HttpResponse response) {
-        response.setMethodError();
+    private byte[] reflectLogin(byte[] originalContent, String sessionId) throws IOException {
+        if (isLogin(sessionId)) {
+            String userName = SessionManager.findUserNameBySession(sessionId);
+            return HtmlModifier.setLogin(originalContent, userName);
+        }
+        return originalContent;
+    }
+
+    private boolean isLogin(String sessionId) {
+        return SessionManager.isSessionIdExist(sessionId);
+    }
+
+    private byte[] readFileContent(String targetPath) throws IOException {
+        try (FileInputStream fileInputStream = new FileInputStream(targetPath)) {
+            return fileInputStream.readAllBytes();
+        }
     }
 }

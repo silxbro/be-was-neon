@@ -1,42 +1,54 @@
 package webserver.http.request;
 
-import static webserver.http.request.RequestHeaderType.ACCEPT;
-import static webserver.http.request.RequestHeaderType.COOKIE;
-import static webserver.http.request.RequestHeaderType.REQUEST_LINE;
-
 import java.util.List;
 import java.util.Map;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import java.util.function.BiConsumer;
 import utils.DataParser;
+import webserver.http.body.HttpBody;
+import webserver.http.headers.HttpHeaders;
+import webserver.http.request.requestline.MethodType;
+import webserver.http.request.requestline.RequestLine;
+import webserver.http.request.requestline.ServiceType;
 import webserver.path.PathHandler;
 
 public class HttpRequest {
 
-    private static final Logger logger = LoggerFactory.getLogger(HttpRequest.class);
-    private static final String HEADER_PRINT_FORMAT = "request header : {}: {}";
     private static final String DATA_PARAMETER_DELIMITER = "&";
     private static final String DEFAULT_CONTENT_TYPE = "application/octet-stream";
     private static final String SESSION_COOKIE_NAME = "sid";
+    private static final String ACCEPT_HEADER_NAME = "Accept";
+    private static final String ACCEPT_HEADER_VALUE_DELIMITER = ",";
+    private static final String COOKIE_HEADER_NAME = "Cookie";
+    private static final String COOKIE_HEADER_VALUE_DELIMITER = ";";
 
-    private final Map<String, String> headers;
+    private final RequestLine requestLine;
+    private final HttpHeaders httpHeaders;
     private final Map<String, String> parameters;
 
-    public HttpRequest(Map<String, String> headers, String body) {
-        this.headers = headers;
-        this.parameters = DataParser.parseParameters(getQuery() + body, DATA_PARAMETER_DELIMITER);
+    public HttpRequest(RequestLine requestLine, HttpHeaders httpHeaders, HttpBody httpBody) {
+        this.requestLine = requestLine;
+        this.httpHeaders = httpHeaders;
+        this.parameters = getParameters(requestLine.getQuery(), httpBody.toString());
+    }
+
+    public String getRequestLine() {
+        return requestLine.toString();
     }
 
     public boolean isGet() {
-        return getMethod() == MethodType.GET;
+        return requestLine.getMethod() == MethodType.GET;
     }
 
     public boolean isPost() {
-        return getMethod() == MethodType.POST;
+        return requestLine.getMethod() == MethodType.POST;
     }
 
     public ServiceType getServiceType() {
-        return ServiceType.of(getAbsolutePath());
+        return ServiceType.of(requestLine.getAbsolutePath());
+    }
+
+    public String getStaticResourcePath() {
+        return PathHandler.getStaticResourcePath(requestLine.getAbsolutePath());
     }
 
     public String getParameter(String name) {
@@ -48,56 +60,26 @@ public class HttpRequest {
     }
 
     public String getContentType() {
-        String filePath = PathHandler.getStaticResourcePath(getAbsolutePath());
-        String extension = PathHandler.getFileExtension(filePath);
+        String extension = PathHandler.getFileExtension(getStaticResourcePath());
         return getAcceptTypes().stream().filter(type -> type.contains(extension)).findAny()
             .orElse(DEFAULT_CONTENT_TYPE);
     }
 
-    public void printHeaders() {
-        headers.forEach((key, value) -> logger.debug(HEADER_PRINT_FORMAT, key, value));
-    }
-
-    private MethodType getMethod() {
-        String methodPart = getRequestLineTokens().get(0);
-        return MethodType.valueOf(methodPart);
-    }
-
     private List<String> getAcceptTypes() {
-        String acceptHeaderValue = headers.get(ACCEPT.getName());
-        return DataParser.parseValues(acceptHeaderValue, ACCEPT.getValueDelimiter());
+        String acceptHeaderValue = httpHeaders.getValueByName(ACCEPT_HEADER_NAME);
+        return DataParser.parseValues(acceptHeaderValue, ACCEPT_HEADER_VALUE_DELIMITER);
     }
 
     private Map<String, String> getCookieValues() {
-        String cookieHeaderValue = headers.get(COOKIE.getName());
-        return DataParser.parseParameters(cookieHeaderValue, COOKIE.getValueDelimiter());
+        String cookieHeaderValue = httpHeaders.getValueByName(COOKIE_HEADER_NAME);
+        return DataParser.parseParameters(cookieHeaderValue, COOKIE_HEADER_VALUE_DELIMITER);
     }
 
-    private String getRequestLine() {
-        return headers.get(REQUEST_LINE.getName());
+    public void processHeaders(BiConsumer<String, String> consumer) {
+        httpHeaders.process(consumer);
     }
 
-    private List<String> getRequestLineTokens() {
-        return DataParser.parseValues(getRequestLine(), REQUEST_LINE.getValueDelimiter());
-    }
-
-    private List<String> getRequestTargetTokens() {
-        String requestTarget = getRequestLineTokens().get(1);
-        return DataParser.parseValues(requestTarget, REQUEST_LINE.getValueDelimiter());
-    }
-
-    public String getAbsolutePath() {
-        return getRequestTargetTokens().get(0);
-    }
-
-    private boolean hasQuery() {
-        return getRequestTargetTokens().size() > 1;
-    }
-
-    private String getQuery() {
-        if (hasQuery()) {
-            return getRequestTargetTokens().get(1);
-        }
-        return "";
+    private Map<String, String> getParameters(String query, String bodyContent) {
+        return DataParser.parseParameters(query + bodyContent, DATA_PARAMETER_DELIMITER);
     }
 }

@@ -9,34 +9,45 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import utils.DataParser;
+import webserver.http.body.HttpBody;
+import webserver.http.headers.HttpHeaders;
+import webserver.http.request.requestline.RequestLine;
 
 public class RequestReader {
 
     private static final String HEADER_DELIMITER = ":";
-    private static final String REQUEST_LINE_HEADER_NAME = "Request Line";
 
     public HttpRequest readRequest(InputStream in) throws IOException {
         BufferedReader reader = new BufferedReader(new InputStreamReader(in, StandardCharsets.UTF_8));
-        return new HttpRequest(readHeaders(reader), readBody(reader));
+        return new HttpRequest(readRequestLine(reader), readHeaders(reader), readBody(reader));
     }
 
-    private Map<String, String> readHeaders(BufferedReader reader) throws IOException {
-        Map<String, String> headers = new HashMap<>();
-        
+    private RequestLine readRequestLine(BufferedReader reader) throws IOException {
         String line = reader.readLine();
-        headers.put(REQUEST_LINE_HEADER_NAME, line);
+        return new RequestLine(line);
+    }
+
+    private HttpHeaders readHeaders(BufferedReader reader) throws IOException {
+        Map<String, String> headerMap = new HashMap<>();
+        
+        String line;
         while ((line = reader.readLine()) != null && !line.isEmpty()) {
             List<String> headerNameAndValue = DataParser.parseValues(line, HEADER_DELIMITER);
-            headers.put(headerNameAndValue.get(0), headerNameAndValue.get(1));
+            headerMap.put(headerNameAndValue.get(0), headerNameAndValue.get(1));
         }
-        return headers;
+        return new HttpHeaders(headerMap);
     }
 
-    private String readBody(BufferedReader reader) throws IOException {
-        StringBuilder body = new StringBuilder();
+    private HttpBody readBody(BufferedReader reader) throws IOException {
+        StringBuilder bodyBuilder = new StringBuilder();
         while (reader.ready()) {
-            body.append((char) reader.read());
+            bodyBuilder.append((char) reader.read());
         }
-        return body.toString();
+
+        HttpBody body = new HttpBody();
+        if (!bodyBuilder.isEmpty()) {
+            body.setContent(bodyBuilder.toString());
+        }
+        return body;
     }
 }

@@ -6,12 +6,7 @@ import webserver.http.request.HttpRequest;
 import webserver.http.response.HttpResponse;
 import webserver.path.PathHandler;
 
-public class RegistrationExecutor extends AbstractExecutor {
-
-    @Override
-    public void doGet(HttpRequest request, HttpResponse response) {
-        response.setMethodError();
-    }
+public class RegistrationExecutor extends PostExecutor {
 
     @Override
     public void doPost(HttpRequest request, HttpResponse response) {
@@ -52,12 +47,12 @@ public class RegistrationExecutor extends AbstractExecutor {
         return password;
     }
 
-    private String validateName(String userId) {
+    private String validateName(String name) {
         // 이름 입력 누락 또는 공백 포함
-        if (userId == null || userId.isEmpty() || userId.contains(" ")) {
+        if (name == null || name.isEmpty() || name.contains(" ")) {
             throw new IllegalArgumentException();
         }
-        return userId;
+        return name;
     }
 
     private String validateEmail(String email) {

@@ -1,90 +1,66 @@
 package webserver.http.response;
 
-import static webserver.http.response.HttpStatus.FOUND;
-import static webserver.http.response.HttpStatus.METHOD_NOT_ALLOWED;
-import static webserver.http.response.HttpStatus.NOT_FOUND;
-import static webserver.http.response.HttpStatus.OK;
-import static webserver.http.response.ResponseHeaderType.CONTENT_LENGTH;
-import static webserver.http.response.ResponseHeaderType.CONTENT_TYPE;
-import static webserver.http.response.ResponseHeaderType.LOCATION;
-import static webserver.http.response.ResponseHeaderType.SET_COOKIE;
-import static webserver.http.response.ResponseHeaderType.STATUS_LINE;
+import static webserver.http.response.statusline.HttpStatus.FOUND;
+import static webserver.http.response.statusline.HttpStatus.METHOD_NOT_ALLOWED;
+import static webserver.http.response.statusline.HttpStatus.NOT_FOUND;
+import static webserver.http.response.statusline.HttpStatus.OK;
 
-import java.io.FileInputStream;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
+import webserver.http.body.HttpBody;
 import webserver.http.cookie.Cookie;
+import webserver.http.headers.HttpHeaders;
+import webserver.http.response.statusline.StatusLine;
 
 public class HttpResponse {
-    private static final String STATUS_LINE_HEADER_FORMAT = "%s %s";
-    private static final String HTTP_1_1_VERSION = "HTTP/1.1";
-    private final Map<String, String> headers;
-    private byte[] body;
+    private static final String CONTENT_TYPE_HEADER_NAME = "Content-Type";
+    private static final String CONTENT_LENGTH_HEADER_NAME = "Content-Length";
+    private static final String LOCATION_HEADER_NAME = "Location";
+    private static final String SET_COOKIE_NAME = "Set-Cookie";
+
+    private final StatusLine statusLine;
+    private final HttpHeaders httpHeaders;
+    private final HttpBody httpBody;
 
     public HttpResponse() {
-        this.headers = new HashMap<>();
+        this.statusLine = new StatusLine();
+        this.httpHeaders = new HttpHeaders();
+        this.httpBody = new HttpBody();
+    }
+
+    public String getStatusLine() {
+        return statusLine.toString();
     }
 
     public List<String> getHeaders() {
-        List<String> headerList = new ArrayList<>();
-        for (String headerName : headers.keySet()) {
-            if (headerName.equals(STATUS_LINE.getName())) {
-                headerList.add(headers.get(headerName));
-                continue;
-            }
-            headerList.add(headerName + ": " + headers.get(headerName));
-        }
-        return headerList;
+        return httpHeaders.getList();
     }
 
     public byte[] getBody() {
-        return body;
+        return httpBody.toByteArray();
     }
 
-    public void setLoadFile(String filePath, String contentType) throws IOException {
-        byte[] body = createBody(filePath);
-        addStatusLine(OK);
-        addHeader(CONTENT_TYPE.getName(), contentType);
-        addHeader(CONTENT_LENGTH.getName(), String.valueOf(body.length));
-        setBody(body);
+    public void setLoadFile(byte[] content, String contentType) throws IOException {
+        statusLine.setStatus(OK);
+        httpHeaders.add(CONTENT_TYPE_HEADER_NAME, contentType);
+        httpHeaders.add(CONTENT_LENGTH_HEADER_NAME, String.valueOf(content.length));
+        httpBody.setContent(content);
     }
 
     public void setRedirect(String path) {
-        addStatusLine(FOUND);
-        addHeader(LOCATION.getName(), path);
+        statusLine.setStatus(FOUND);
+        httpHeaders.add(LOCATION_HEADER_NAME, path);
     }
 
     public void setCookie(Cookie cookie) {
-        addHeader(SET_COOKIE.getName(), cookie.toString());
+        httpHeaders.add(SET_COOKIE_NAME, cookie.toString());
     }
 
     public void setPathError() {
-        addStatusLine(NOT_FOUND);
+        statusLine.setStatus(NOT_FOUND);
     }
 
     public void setMethodError() {
-        addStatusLine(METHOD_NOT_ALLOWED);
-    }
-
-    private void addStatusLine(HttpStatus httpStatus) {
-        addHeader(STATUS_LINE.getName(),
-            String.format(STATUS_LINE_HEADER_FORMAT, HTTP_1_1_VERSION, httpStatus.toString()));
-    }
-
-    private void addHeader(String name, String value) {
-        headers.put(name, value);
-    }
-
-    private void setBody(byte[] body) {
-        this.body = body;
-    }
-
-    private byte[] createBody(String targetPath) throws IOException {
-        try (FileInputStream fileInputStream = new FileInputStream(targetPath)) {
-            return fileInputStream.readAllBytes();
-        }
+        statusLine.setStatus(METHOD_NOT_ALLOWED);
     }
 }

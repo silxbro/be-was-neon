@@ -7,12 +7,7 @@ import webserver.http.cookie.Cookie;
 import webserver.http.request.HttpRequest;
 import webserver.http.response.HttpResponse;
 
-public class LogoutExecutor extends AbstractExecutor {
-
-    @Override
-    public void doGet(HttpRequest request, HttpResponse response) {
-        response.setMethodError();
-    }
+public class LogoutExecutor extends PostExecutor {
 
     @Override
     public void doPost(HttpRequest request, HttpResponse response) {

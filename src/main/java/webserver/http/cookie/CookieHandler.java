@@ -1,7 +1,5 @@
 package webserver.http.cookie;
 
-import webserver.http.cookie.Cookie;
-
 public class CookieHandler {
 
     private static final String SESSION_ID = "sid";

@@ -1,4 +1,4 @@
-package webserver.http.request;
+package webserver.http.request.requestline;
 
 import java.util.Arrays;
 
@@ -23,5 +23,4 @@ public enum ServiceType {
             .filter(ServiceType -> ServiceType.absolutePath.equals(targetPath))
             .findAny().orElse(LOAD);
     }
-
 }

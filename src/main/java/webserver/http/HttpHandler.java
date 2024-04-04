@@ -15,6 +15,8 @@ import webserver.http.response.ResponseWriter;
 public class HttpHandler implements Runnable {
 
     private static final Logger logger = LoggerFactory.getLogger(HttpHandler.class);
+    private static final String REQUEST_LINE_FORMAT = "request line : {}";
+    private static final String HEADER_PRINT_FORMAT = "request header : {}: {}";
     private final Socket connection;
 
     public HttpHandler(Socket connectionSocket) {
@@ -29,14 +31,22 @@ public class HttpHandler implements Runnable {
             // 클라이언트 요청 객체 생성, 처리, 응답 객체 생성
             HttpRequest request = new RequestReader().readRequest(in);
             HttpResponse response = new HttpResponse();
-            new HttpRouter().execute(request, response);
+            HttpRouter router = new HttpRouter();
+            router.execute(request, response);
 
             // 헤더 출력
-            request.printHeaders();
+            printHeaders(request);
+
             // 응답 전송
-            new ResponseWriter().writeResponse(out, response);
+            ResponseWriter responseWriter = new ResponseWriter();
+            responseWriter.writeResponse(out, response);
         } catch (IOException e) {
             logger.error(e.getMessage());
         }
+    }
+
+    private void printHeaders(HttpRequest request) {
+        logger.debug(REQUEST_LINE_FORMAT, request.getRequestLine());
+        request.processHeaders((key, value) -> logger.debug(HEADER_PRINT_FORMAT, key, value));
     }
 }

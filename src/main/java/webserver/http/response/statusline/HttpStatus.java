@@ -1,4 +1,4 @@
-package webserver.http.response;
+package webserver.http.response.statusline;
 
 public enum HttpStatus {
     OK(200, "OK"),
@@ -34,22 +34,6 @@ public enum HttpStatus {
     HttpStatus(int code, String message) {
         this.code = code;
         this.message = message;
-    }
-
-    public boolean isSuccessful() {
-        return code / CATEGORY_FACTOR == 2;
-    }
-
-    public boolean isRedirection() {
-        return code / CATEGORY_FACTOR == 3;
-    }
-
-    public boolean isClientError() {
-        return code / CATEGORY_FACTOR == 4;
-    }
-
-    public boolean isServerError() {
-        return code / CATEGORY_FACTOR == 5;
     }
 
     @Override
