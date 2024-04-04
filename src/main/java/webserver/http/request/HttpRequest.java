@@ -8,7 +8,6 @@ import webserver.http.body.HttpBody;
 import webserver.http.headers.HttpHeaders;
 import webserver.http.request.requestline.MethodType;
 import webserver.http.request.requestline.RequestLine;
-import webserver.http.request.requestline.ServiceType;
 import webserver.path.PathHandler;
 
 public class HttpRequest {

@@ -7,7 +7,6 @@ import webserver.executor.LoginExecutor;
 import webserver.executor.LogoutExecutor;
 import webserver.executor.RegistrationExecutor;
 import webserver.http.request.HttpRequest;
-import webserver.http.request.requestline.ServiceType;
 import webserver.http.response.HttpResponse;
 
 public class HttpRouter {
